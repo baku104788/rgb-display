@@ -51,7 +51,6 @@ int main(int argc, char *argv[]) {
   matrix_options.rows = 32;
   matrix_options.hardware_mapping = "adafruit-hat-pwm";
   matrix_options.cols = 64;
-  matrix_options.cols = 64;
   
   if (!rgb_matrix::ParseOptionsFromFlags(&argc, &argv,
                                          &matrix_options, &runtime_opt)) {
@@ -64,8 +63,8 @@ int main(int argc, char *argv[]) {
   bool with_outline = false;
 
   const char *bdf_font_file = NULL;
-  int x_orig = 0;
-  int y_orig = 0;
+  int x_orig = 25;
+  int y_orig = 6;
   int brightness = 100;
   int letter_spacing = 0;
 
@@ -110,6 +109,12 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Couldn't load font '%s'\n", bdf_font_file);
     return 1;
   }
+  
+   rgb_matrix::Font smallFont;
+  if (!smallFont.LoadFont("/home/pi/rgb/fonts/4x6.bdf")) {
+    fprintf(stderr, "Couldn't load font '%s'\n", bdf_font_file);
+    return 1;
+  }
 
   /*
    * If we want an outline around the font, we create a new font with
@@ -145,12 +150,43 @@ int main(int argc, char *argv[]) {
 
 
   char line[20];
-  int i=10;
+  int i=30;
+  
+    const int width = canvas->width() - 1;
+    const int height = canvas->height() - 1;
+
+	int line_r = 0;
+	int line_g = 255;
+	int line_b = 0;
+  
   while (i>=0) {
 	  sprintf(line, "%d", i);
 	  printf("%s\n",line);
 	  
     canvas->Clear();
+	
+	if(i<20)
+	{
+		line_r=255;
+	}
+	if(i<10)
+	{
+		line_g=0;
+		    
+		rgb_matrix::DrawText(canvas, smallFont, x, 14 + font.baseline(),
+                         color, NULL , "ready",
+                         letter_spacing);
+	}
+
+	if(i>10 || i%2==0)
+	{
+    DrawLine(canvas, 0, 0,      width, 0,      Color(line_r, line_g, line_b));
+    DrawLine(canvas, 0, height, width, height, Color(line_r, line_g, line_b));
+    DrawLine(canvas, 0, 0,      0,     height, Color(line_r, line_g, line_b));
+    DrawLine(canvas, width, 0,  width, height, Color(line_r, line_g, line_b));
+	}
+	
+	
 	if (outline_font) {
       // The outline font, we need to write with a negative (-2) text-spacing,
       // as we want to have the same letter pitch as the regular text that
@@ -164,11 +200,27 @@ int main(int argc, char *argv[]) {
     rgb_matrix::DrawText(canvas, font, x, y + font.baseline(),
                          color, outline_font ? NULL : &bg_color, line,
                          letter_spacing);
+						 
+						 
+						 
+						 
+						 
 	sleep(1);
 	i--;
-	
-	
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   // Finished. Shut down the RGB matrix.
   canvas->Clear();
